@@ -1,0 +1,5 @@
+@import 'bootstrap';
+@import "font-awesome";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
