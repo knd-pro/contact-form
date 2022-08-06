@@ -6,38 +6,47 @@ import BreezeLabel from '@/Components/Label.vue';
 import BreezeValidationErrors from '@/Components/ValidationErrors.vue';
 import { Head, Link, useForm } from '@inertiajs/inertia-vue3';
 
+const props = defineProps({
+    user: Object,
+    form_type: String,
+});
+
 const form = useForm({
-    user_name: '',
-    last_name: '',
-    first_name: '',
-    email: '',
-    phone: '',
-    address: '',
-    zip_code: '',
-    town: '',
-    comment: '',
-    password: '',
-    password_confirmation: '',
+    user_name: props.user?.user_name,
+    last_name: props.user?.last_name,
+    first_name: props.user?.first_name,
+    email: props.user?.email,
+    phone: props.user?.phone,
+    address: props.user?.address,
+    zip_code: props.user?.zip_code,
+    town: props.user?.town,
+    comment: props.user?.comment,
+    password: "",
+    password_confirmation: "",
     terms: false,
 });
 
 const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
-    });
+    if (props.form_type == 'edit') {
+        form.put(route('users.update', props.user?.id), {
+            onFinish: () => form.reset('password', 'password_confirmation'),
+        });
+    } else {
+        form.post(route('register'), {
+            onFinish: () => form.reset('password', 'password_confirmation'),
+        });
+    }
 };
 </script>
 
 <template>
+    <BreezeValidationErrors class="mb-4" />
+
     <BreezeGuestLayout>
-        <Head title="Inscription" />
-
-        <BreezeValidationErrors class="mb-4" />
-
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" method="update">
             <div>
                 <BreezeLabel for="user_name" value="Nom d'utilisateur" />
-                <BreezeInput id="user_name" type="text" class="mt-1 block w-full" v-model="form.user_name" required autofocus autocomplete="user_name" />
+                <BreezeInput id="user_name" type="text" class="mt-1 block w-full" v-model="form.user_name" required autofocus autocomplete="user_name"/>
             </div>
 
             <div class="mt-4">
@@ -81,16 +90,24 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <BreezeLabel for="password" value="Mot de passe" />
-                <BreezeInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required autocomplete="new-password" />
+                <BreezeLabel v-if="$props.form_type == 'edit'" for="password" value="Mot de passe (facultatif)" />
+                <BreezeLabel v-else for="password" value="Mot de passe" />
+                <BreezeInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" autocomplete="new-password" />
             </div>
 
             <div class="mt-4">
-                <BreezeLabel for="password_confirmation" value="Confirmer le mot de passe" />
-                <BreezeInput id="password_confirmation" type="password" class="mt-1 block w-full" v-model="form.password_confirmation" required autocomplete="new-password" />
+                <BreezeLabel v-if="$props.form_type == 'edit'" for="password_confirmation" value="Confirmer le mot de passe (facultatif)" />
+                <BreezeLabel v-else for="password_confirmation" value="Confirmer le mot de passe" />
+                <BreezeInput id="password_confirmation" type="password" class="mt-1 block w-full" v-model="form.password_confirmation" autocomplete="new-password" />
             </div>
 
-            <div class="flex items-center justify-end mt-4">
+            <div v-if="$props.form_type == 'edit'" class="flex items-center justify-end mt-4">
+                <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+                <BreezeButton type="submit" class="ml-3 rounded-0">
+                    Modifier
+                </BreezeButton>
+            </div>
+            <div v-else class="flex items-center justify-end mt-4">
                 <Link :href="route('login')" class="underline text-sm text-gray-600 hover:text-gray-900">
                     Déjà enregistré ?
                 </Link>
