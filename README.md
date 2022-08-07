@@ -12,7 +12,7 @@ Le formulaire de contact suit les règles suivantes :
 - L'email est validé dès sa saisie dans le formulaire.
 - Le numéro de téléphone doit contenir 10 chiffres (normes françaises).
 - Les commentaires saisis par l'utilisateur seront affichés avec les sauts de ligne présents dans le texte.
-- Le champs ville sera rempli automatiquement si une ville correspondant au code postal a été trouvée.
+- Le champs ville sera rempli automatiquement si une ville correspondant au code postal a été trouvée (api: apicarto.ign.fr).
 
 
 Projet réalisé avec :
@@ -31,6 +31,7 @@ Commandes a éxécuter pour installer le projet
 
 ```
 npm install
+composer install
 php artisan migrate:fresh --seed
 ```
 ## Lancement
