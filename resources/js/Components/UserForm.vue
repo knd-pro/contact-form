@@ -1,10 +1,9 @@
 <script setup>
-import BreezeButton from '@/Components/Button.vue';
 import BreezeGuestLayout from '@/Layouts/Guest.vue';
-import BreezeInput from '@/Components/Input.vue';
-import BreezeLabel from '@/Components/Label.vue';
 import BreezeValidationErrors from '@/Components/ValidationErrors.vue';
-import { Head, Link, useForm } from '@inertiajs/inertia-vue3';
+import {watch} from 'vue';
+import { useForm } from '@inertiajs/inertia-vue3';
+import axios from "axios";
 
 const props = defineProps({
     user: Object,
@@ -12,6 +11,7 @@ const props = defineProps({
 });
 
 const form = useForm({
+    errors: {},
     user_name: props.user?.user_name,
     last_name: props.user?.last_name,
     first_name: props.user?.first_name,
@@ -27,6 +27,7 @@ const form = useForm({
 });
 
 const submit = () => {
+    window.scrollTo({top: 0, left: 0, behavior: 'instant'});
     if (props.form_type == 'edit') {
         form.put(route('users.update', props.user?.id), {
             onFinish: () => form.reset('password', 'password_confirmation'),
@@ -37,85 +38,116 @@ const submit = () => {
         });
     }
 };
+
+watch(() => form.email, (value) => {
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value))
+    {
+        delete form.errors['email'];
+    } else{
+        form.errors['email'] = 'Email invalide';
+    }
+});
+
+watch(() => form.zip_code, (value) => {
+    if (/^\d{5}$/.test(value))
+    {
+        fetchTown(value);
+        delete form.errors['zip_code'];
+    } else{
+        form.errors['zip_code'] = 'Code postal invalide';
+    }
+});
+
+const fetchTown = (value) => {
+    (async() => {
+        let res = null;
+        try {
+            res = await axios.get(`https://apicarto.ign.fr/api/codes-postaux/communes/${value}`);
+            form.town = res.data[0].nomCommune;
+        } catch (err) {}
+    })();
+}
 </script>
 
 <template>
-    <BreezeValidationErrors class="mb-4" />
-
     <BreezeGuestLayout>
+        <BreezeValidationErrors class="mb-4" />
+
         <form @submit.prevent="submit" method="update">
-            <div>
-                <BreezeLabel for="user_name" value="Nom d'utilisateur" />
-                <BreezeInput id="user_name" type="text" class="mt-1 block w-full" v-model="form.user_name" required autofocus autocomplete="user_name"/>
+            <div class="form-group">
+                <label for="user_name">Nom d'utilisateur</label>
+                <input id="user_name" type="text" class="form-control mt-1" v-model="form.user_name" required autofocus autocomplete="user_name"/>
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel for="last_name" value="Nom" />
-                <BreezeInput id="last_name" type="text" class="mt-1 block w-full" v-model="form.last_name" required autocomplete="last_name" />
+            <div class="form-group mt-4">
+                <label for="last_name">Nom</label>
+                <input id="last_name" type="text" class="form-control mt-1" v-model="form.last_name" required autocomplete="last_name" />
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel for="first_name" value="Prénom" />
-                <BreezeInput id="first_name" type="text" class="mt-1 block w-full" v-model="form.first_name" required autocomplete="first_name" />
+            <div class="form-group mt-4">
+                <label for="first_name">Prénom</label>
+                <input id="first_name" type="text" class="form-control mt-1" v-model="form.first_name" required autocomplete="first_name" />
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel for="email" value="Email" />
-                <BreezeInput id="email" type="email" class="mt-1 block w-full" v-model="form.email" required autocomplete="username" />
+            <div class="form-group mt-4">
+                <label v-if="form.errors.email" for="email" class="error">{{ form.errors.email }}</label>
+                <label v-else for="email">Email</label>
+                <input id="email" type="email" class="form-control mt-1" v-model="form.email" required autocomplete="username" />
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel for="phone" value="Numéro de téléphone" />
-                <BreezeInput id="phone" type="tel" class="mt-1 block w-full" v-model="form.phone" required autocomplete="phone" />
+            <div class="form-group mt-4">
+                <label for="phone">Numéro de téléphone</label>
+                <input id="phone" type="tel" class="form-control mt-1" v-model="form.phone" required autocomplete="phone" />
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel for="address" value="Adresse" />
-                <BreezeInput id="address" type="text" class="mt-1 block w-full" v-model="form.address" required autocomplete="address" />
+            <div class="form-group mt-4">
+                <label for="address">Adresse</label>
+                <input id="address" type="text" class="form-control mt-1" v-model="form.address" required autocomplete="address" />
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel for="zip_code" value="Code postal" />
-                <BreezeInput id="zip_code" type="text" class="mt-1 block w-full" v-model="form.zip_code" required autocomplete="zip_code" />
+            <div class="form-group mt-4">
+                <label v-if="form.errors.zip_code" for="zip_code" class="error">{{ form.errors.zip_code }}</label>
+                <label v-else for="zip_code">Code postal</label>
+                <input id="zip_code" type="text" class="form-control mt-1" v-model="form.zip_code" required autocomplete="zip_code" />
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel for="town" value="Ville" />
-                <BreezeInput id="town" type="text" class="mt-1 block w-full" v-model="form.town" required autocomplete="town" />
+            <div class="form-group mt-4">
+                <label for="town">Ville</label>
+                <input id="town" type="text" class="form-control mt-1" v-model="form.town" required autocomplete="town" />
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel for="comment" value="Commentaire" />
-                <BreezeInput id="comment" type="text" class="mt-1 block w-full" v-model="form.comment" required autocomplete="comment" />
+            <div class="form-group mt-4">
+                <label for="comment">Commentaire</label>
+                <textarea id="comment" type="text" class="form-control mt-1" v-model="form.comment" required autocomplete="comment"></textarea>
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel v-if="$props.form_type == 'edit'" for="password" value="Mot de passe (facultatif)" />
-                <BreezeLabel v-else for="password" value="Mot de passe" />
-                <BreezeInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" autocomplete="new-password" />
+            <div class="form-group mt-4">
+                <label v-if="$props.form_type == 'edit'" for="password">Mot de passe (facultatif)</label>
+                <label v-else for="password">Mot de passe</label>
+                <input id="password" type="password" class="form-control mt-1" v-model="form.password" autocomplete="new-password" />
             </div>
 
-            <div class="mt-4">
-                <BreezeLabel v-if="$props.form_type == 'edit'" for="password_confirmation" value="Confirmer le mot de passe (facultatif)" />
-                <BreezeLabel v-else for="password_confirmation" value="Confirmer le mot de passe" />
-                <BreezeInput id="password_confirmation" type="password" class="mt-1 block w-full" v-model="form.password_confirmation" autocomplete="new-password" />
+            <div class="form-group mt-4">
+                <label v-if="$props.form_type == 'edit'" for="password_confirmation">Confirmer le mot de passe (facultatif)</label>
+                <label v-else for="password_confirmation">Confirmer le mot de passe</label>
+                <input id="password_confirmation" type="password" class="form-control mt-1" v-model="form.password_confirmation" autocomplete="new-password" />
             </div>
 
-            <div v-if="$props.form_type == 'edit'" class="flex items-center justify-end mt-4">
-                <button type="submit" disabled style="display: none" aria-hidden="true"></button>
-                <BreezeButton type="submit" class="ml-3 rounded-0">
-                    Modifier
-                </BreezeButton>
+            <div v-if="$props.form_type == 'edit'" class="d-flex mt-4 align-items-center justify-content-around">
+                <a :href="route('dashboard.index')" class="btn btn-secondary w-25">Retour</a>
+                <div class="w-25">
+                    <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+                    <button type="submit" class="btn btn-primary bg-primary w-100">
+                        Modifier
+                    </button>
+                </div>
             </div>
-            <div v-else class="flex items-center justify-end mt-4">
-                <Link :href="route('login')" class="underline text-sm text-gray-600 hover:text-gray-900">
-                    Déjà enregistré ?
-                </Link>
-
-                <button type="submit" disabled style="display: none" aria-hidden="true"></button>
-                <BreezeButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Créer un compte
-                </BreezeButton>
+            <div v-else class="d-flex mt-4 align-items-center justify-content-between">
+                <a :href="route('login')">Déjà enregistré ?</a>
+                <div>
+                    <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+                    <button type="submit" class="btn btn-primary bg-primary ml-4">Créer un compte</button>
+                </div>
             </div>
         </form>
     </BreezeGuestLayout>

@@ -1,5 +1,100 @@
 @import 'bootstrap';
-@import "font-awesome";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'bootstrap-icons';
+
+body {
+    background: repeating-linear-gradient(to right, #b26bd1, #72b4f5);
+}
+
+#app {
+    height: 100%; /* feel free to add more classes */
+}
+
+#main-container {
+    width: 35%;
+}
+
+#main-container li {
+    font-size: 20px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+h1 {
+    font-size: 25px;
+}
+
+h4 {
+    margin: 0;
+}
+
+.bg-gray {
+    background-color: rgb(245, 245, 245);
+}
+
+a {
+    text-decoration: none;
+}
+
+input, textarea {
+    outline: none;
+    box-shadow: none !important;
+}
+
+.error,
+.text-red-600 {
+    color: rgb(217, 9, 9);
+    font-weight: 600;
+}
+
+.error + input,
+.error + input:active,
+.error + input:focus {
+    color: rgb(217, 9, 9);
+    border: rgb(217, 9, 9) 1px solid;
+}
+
+.text-pre-wrap {
+    white-space: pre-wrap;
+}
+
+table th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+#tableContainer {
+    width: 95%;
+    margin: auto;
+}
+
+#tableContainer > table {
+    background-color: white;
+}
+
+#tableContainer > table thead {
+    background-color: rgb(133, 107, 221);
+    color: white;
+}
+
+#tableContainer > table > thead th {
+    padding: 20px 0;
+    border-bottom: unset;
+}
+
+#tableContainer > table > thead th:not(:first-child) {
+    border-left: 1px solid rgb(106, 46, 201);
+}
+
+#tableContainer > table tr:nth-child(2n) {
+    background-color: rgb(240, 233, 255);
+}
+
+#tableContainer > table > tbody tr:hover {
+    background-color: rgba(60, 0, 255, 0.2);
+}
+
+#tableContainer > table > tbody td:not(:first-child) {
+    border-left: 1px solid rgb(188, 168, 230);
+}

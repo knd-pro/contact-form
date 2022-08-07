@@ -33,7 +33,7 @@ class DashboardController extends Controller
     }
 
     public function edit($userId) {
-        If(Auth::check() && Auth::user()->is_admin) {
+        If(Auth::check() && (Auth::user()->is_admin || (Auth::id() == $userId))) {
             $user = User::find($userId);
 
             if ($user) {
