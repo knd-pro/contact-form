@@ -18,6 +18,7 @@ Le formulaire de contact suit les règles suivantes :
 Projet réalisé avec :
 ```
 PHP 8.1.8
+Node.js 18.7.0
 Laravel 9.23.0
 Vue 3.2.37
 Bootstrap 5.2.0
